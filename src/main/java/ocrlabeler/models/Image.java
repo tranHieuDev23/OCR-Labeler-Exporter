@@ -1,5 +1,6 @@
 package ocrlabeler.models;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 public class Image {
@@ -29,6 +30,6 @@ public class Image {
 
     @Override
     public int hashCode() {
-        return Objects.hash(imageUrl, region);
+        return Objects.hash(imageUrl.hashCode(), Arrays.hashCode(region));
     }
 }

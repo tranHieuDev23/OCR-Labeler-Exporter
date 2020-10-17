@@ -1,5 +1,6 @@
 package ocrlabeler.models;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 public class TextRegion {
@@ -29,6 +30,7 @@ public class TextRegion {
 
     @Override
     public int hashCode() {
-        return Objects.hash(label, vertices);
+        int result = Objects.hash(label.hashCode(), Arrays.hashCode(this.vertices));
+        return result;
     }
 }
