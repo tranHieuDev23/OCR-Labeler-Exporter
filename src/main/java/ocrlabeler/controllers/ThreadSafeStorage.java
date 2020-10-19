@@ -10,22 +10,38 @@ public class ThreadSafeStorage {
     public static final String RESULT_PATH_KEY = "RESULT_PATH_KEY";
     public static final String EXPORT_STATE_KEY = "EXPORT_STATE_KEY";
 
+    public static final String JSON_DUMP_FILE = "dump.json";
+
+    private static final JsonTool JSON_TOOL = JsonTool.getInstance();
+    private Map<String, String> map;
+
     private ThreadSafeStorage() {
+        try {
+            map = Collections.synchronizedMap(JSON_TOOL.readFromFile(JSON_DUMP_FILE));
+        } catch (Exception e) {
+            map = Collections.synchronizedMap(new HashMap<>());
+        }
     }
 
-    private static final ThreadSafeStorage STORAGE = new ThreadSafeStorage();
+    private static final ThreadSafeStorage INSTANCE = new ThreadSafeStorage();
 
     public static final synchronized ThreadSafeStorage getInstance() {
-        return STORAGE;
+        return INSTANCE;
     }
 
-    private final Map<String, Object> map = Collections.synchronizedMap(new HashMap<>());
-
-    public Object getValue(String field) {
+    public String getValue(String field) {
         return map.get(field);
     }
 
-    public void setValue(String field, Object value) {
+    public String getValueOrDefault(String field, String defaultValue) {
+        return map.getOrDefault(field, defaultValue);
+    }
+
+    public void setValue(String field, String value) {
         map.put(field, value);
+    }
+
+    public void dump() {
+        JSON_TOOL.writeFromMap(map, JSON_DUMP_FILE);
     }
 }

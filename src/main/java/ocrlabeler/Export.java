@@ -29,15 +29,15 @@ public class Export {
     private static final ThreadSafeStorage STORAGE = ThreadSafeStorage.getInstance();
 
     private synchronized boolean checkReadyState() {
-        if (ExportState.EXPORTING.equals(STORAGE.getValue(ThreadSafeStorage.EXPORT_STATE_KEY))) {
+        if (ExportState.EXPORTING.toString().equals(STORAGE.getValue(ThreadSafeStorage.EXPORT_STATE_KEY))) {
             return false;
         }
-        STORAGE.setValue(ThreadSafeStorage.EXPORT_STATE_KEY, ExportState.EXPORTING);
+        STORAGE.setValue(ThreadSafeStorage.EXPORT_STATE_KEY, ExportState.EXPORTING.toString());
         return true;
     }
 
     private synchronized void setStateReady() {
-        STORAGE.setValue(ThreadSafeStorage.EXPORT_STATE_KEY, ExportState.READY);
+        STORAGE.setValue(ThreadSafeStorage.EXPORT_STATE_KEY, ExportState.READY.toString());
     }
 
     private String getOutputFileName(long resultHash, long timestamp) {
@@ -46,11 +46,11 @@ public class Export {
     }
 
     private boolean isDuplicateHash(long resultHash) {
-        Long oldHash = (Long) STORAGE.getValue(ThreadSafeStorage.RESULT_HASH_KEY);
-        if (oldHash == null) {
+        String oldHashStr = STORAGE.getValue(ThreadSafeStorage.RESULT_HASH_KEY);
+        if (oldHashStr == null) {
             return false;
         }
-        return oldHash.equals(resultHash);
+        return Long.parseLong(oldHashStr) == resultHash;
     }
 
     private void deleteOldFile() {
@@ -64,7 +64,7 @@ public class Export {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    public String getIt(ExportRequestBody body) {
+    public String handle(ExportRequestBody body) {
         long timestamp = new Date().getTime();
         if (!checkReadyState()) {
             return "Error";
@@ -73,16 +73,18 @@ public class Export {
             Image[] verifiedImages = DB.getImagesToExport();
             long resultHash = Arrays.hashCode(verifiedImages);
             if (isDuplicateHash(resultHash)) {
+                STORAGE.setValue(ThreadSafeStorage.RESULT_TIMESTAMP_KEY, String.valueOf(timestamp));
                 setStateReady();
                 return "Error";
             }
             String outputFileName = getOutputFileName(resultHash, timestamp);
             ZIP.zip(verifiedImages, body.uploadedFolder, outputFileName);
             deleteOldFile();
-            STORAGE.setValue(ThreadSafeStorage.RESULT_HASH_KEY, resultHash);
-            STORAGE.setValue(ThreadSafeStorage.RESULT_TIMESTAMP_KEY, timestamp);
+            STORAGE.setValue(ThreadSafeStorage.RESULT_HASH_KEY, String.valueOf(resultHash));
+            STORAGE.setValue(ThreadSafeStorage.RESULT_TIMESTAMP_KEY, String.valueOf(timestamp));
             STORAGE.setValue(ThreadSafeStorage.RESULT_PATH_KEY, outputFileName);
             setStateReady();
+            STORAGE.dump();
             return "Got it!";
         } catch (SQLException | IOException e) {
             e.printStackTrace();

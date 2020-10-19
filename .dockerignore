@@ -3,5 +3,8 @@ target
 .project
 .classpath
 .vscode
+.git
+.gitignore
 compressed-*
 dump.json
+Dockerfile

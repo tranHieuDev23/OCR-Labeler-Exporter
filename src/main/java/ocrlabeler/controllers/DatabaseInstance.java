@@ -19,9 +19,12 @@ public class DatabaseInstance {
 
     private DatabaseInstance() {
         Dotenv dotenv = Dotenv.load();
-        String databaseUrl = dotenv.get("DATABASE_URL");
-        String databaseUser = dotenv.get("DATABASE_USER");
-        String databasePassword = dotenv.get("DATABASE_PASSWORD");
+        String databaseHost = dotenv.get("POSTGRES_HOST");
+        String databasePort = dotenv.get("POSTGRES_PORT");
+        String databaseDB = dotenv.get("POSTGRES_DB");
+        String databaseUrl = createDatabaseUrl(databaseHost, databasePort, databaseDB);
+        String databaseUser = dotenv.get("POSTGRES_USER");
+        String databasePassword = dotenv.get("POSTGRES_PASSWORD");
         Properties props = new Properties();
         props.setProperty("user", databaseUser);
         props.setProperty("password", databasePassword);
@@ -31,6 +34,11 @@ public class DatabaseInstance {
             e.printStackTrace();
             throw new RuntimeException("Failed to connect to database", e);
         }
+    }
+
+    private String createDatabaseUrl(String databaseHost, String databasePort, String databaseDB) {
+        return new StringBuilder("jdbc:postgresql://").append(databaseHost).append(':').append(databasePort).append('/')
+                .append(databaseDB).toString();
     }
 
     private static final DatabaseInstance INSTANCE = new DatabaseInstance();
