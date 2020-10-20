@@ -7,4 +7,5 @@ target
 .gitignore
 compressed-*
 dump.json
+export
 Dockerfile

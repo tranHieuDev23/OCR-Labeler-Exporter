@@ -4,21 +4,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import com.google.gson.Gson;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import ocrlabeler.models.Image;
 
 public class Zipper {
-    private final String exportDirectory;
 
     private Zipper() {
-        Dotenv dotenv = Dotenv.load();
-        exportDirectory = dotenv.get("EXPORT_DIRECTORY");
     }
 
     private static final Zipper INSTANCE = new Zipper();
@@ -30,17 +25,13 @@ public class Zipper {
 
     private static final int BUFFER_SIZE = 1024;
 
-    private String joinPath(String first, String... parts) {
-        return Paths.get(first, parts).toString();
-    }
-
-    public void zip(Image[] images, String uploadDirectory, String outputFile) throws IOException {
+    public void zip(Image[] images, String outputFile) throws IOException {
         byte[] buffer = new byte[BUFFER_SIZE];
-        FileOutputStream os = new FileOutputStream(joinPath(exportDirectory, outputFile));
+        FileOutputStream os = new FileOutputStream(PathUtils.joinPath(PathUtils.EXPORT_DIRECTORY, outputFile));
         ZipOutputStream zos = new ZipOutputStream(os);
 
         for (Image item : images) {
-            File srcFile = new File(joinPath(uploadDirectory, item.getImageUrl()));
+            File srcFile = new File(PathUtils.joinPath(PathUtils.UPLOAD_DIRECTORY, item.getImageUrl()));
             FileInputStream is = new FileInputStream(srcFile);
             zos.putNextEntry(new ZipEntry(srcFile.getName()));
 
