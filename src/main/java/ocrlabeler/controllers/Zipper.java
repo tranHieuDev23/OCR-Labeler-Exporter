@@ -10,10 +10,15 @@ import java.util.zip.ZipOutputStream;
 
 import com.google.gson.Gson;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import ocrlabeler.models.Image;
 
 public class Zipper {
+    private final String exportDirectory;
+
     private Zipper() {
+        Dotenv dotenv = Dotenv.load();
+        exportDirectory = dotenv.get("EXPORT_DIRECTORY");
     }
 
     private static final Zipper INSTANCE = new Zipper();
@@ -31,7 +36,7 @@ public class Zipper {
 
     public void zip(Image[] images, String uploadDirectory, String outputFile) throws IOException {
         byte[] buffer = new byte[BUFFER_SIZE];
-        FileOutputStream os = new FileOutputStream(outputFile);
+        FileOutputStream os = new FileOutputStream(joinPath(exportDirectory, outputFile));
         ZipOutputStream zos = new ZipOutputStream(os);
 
         for (Image item : images) {

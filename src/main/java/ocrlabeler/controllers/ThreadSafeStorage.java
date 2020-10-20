@@ -1,8 +1,11 @@
 package ocrlabeler.controllers;
 
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import io.github.cdimascio.dotenv.Dotenv;
 
 public class ThreadSafeStorage {
     public static final String RESULT_HASH_KEY = "RESULT_HASH_KEY";
@@ -10,14 +13,17 @@ public class ThreadSafeStorage {
     public static final String RESULT_PATH_KEY = "RESULT_PATH_KEY";
     public static final String EXPORT_STATE_KEY = "EXPORT_STATE_KEY";
 
-    public static final String JSON_DUMP_FILE = "dump.json";
+    public final String jsonDumpFile;
 
     private static final JsonTool JSON_TOOL = JsonTool.getInstance();
     private Map<String, String> map;
 
     private ThreadSafeStorage() {
+        Dotenv dotenv = Dotenv.load();
+        String exportDirectory = dotenv.get("EXPORT_DIRECTORY");
+        jsonDumpFile = Paths.get(exportDirectory, "dump.json").toString();
         try {
-            map = Collections.synchronizedMap(JSON_TOOL.readFromFile(JSON_DUMP_FILE));
+            map = Collections.synchronizedMap(JSON_TOOL.readFromFile(jsonDumpFile));
         } catch (Exception e) {
             map = Collections.synchronizedMap(new HashMap<>());
         }
@@ -42,6 +48,6 @@ public class ThreadSafeStorage {
     }
 
     public void dump() {
-        JSON_TOOL.writeFromMap(map, JSON_DUMP_FILE);
+        JSON_TOOL.writeFromMap(map, jsonDumpFile);
     }
 }
