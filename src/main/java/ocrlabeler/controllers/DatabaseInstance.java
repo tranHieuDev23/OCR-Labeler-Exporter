@@ -18,7 +18,7 @@ public class DatabaseInstance {
     private Connection conn = null;
 
     private DatabaseInstance() {
-        Dotenv dotenv = Dotenv.load();
+        Dotenv dotenv = Utils.DOTENV;
         String databaseHost = dotenv.get("POSTGRES_HOST");
         String databasePort = dotenv.get("POSTGRES_PORT");
         String databaseDB = dotenv.get("POSTGRES_DB");

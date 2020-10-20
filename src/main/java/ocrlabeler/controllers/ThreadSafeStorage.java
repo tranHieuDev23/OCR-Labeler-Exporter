@@ -1,5 +1,6 @@
 package ocrlabeler.controllers;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +16,7 @@ public class ThreadSafeStorage {
 
     private ThreadSafeStorage() {
         try {
-            map = Collections.synchronizedMap(JSON_TOOL.readFromFile(PathUtils.JSON_DUMP_FILE));
+            map = Collections.synchronizedMap(JSON_TOOL.readFromFile(Utils.JSON_DUMP_FILE));
         } catch (Exception e) {
             map = Collections.synchronizedMap(new HashMap<>());
         }
@@ -40,6 +41,10 @@ public class ThreadSafeStorage {
     }
 
     public void dump() {
-        JSON_TOOL.writeFromMap(map, PathUtils.JSON_DUMP_FILE);
+        try {
+            JSON_TOOL.writeFromMap(map, Utils.JSON_DUMP_FILE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

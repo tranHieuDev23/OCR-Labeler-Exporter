@@ -27,12 +27,12 @@ public class Export {
         if (ExportState.EXPORTING.toString().equals(STORAGE.getValue(ThreadSafeStorage.EXPORT_STATE_KEY))) {
             return false;
         }
-        STORAGE.setValue(ThreadSafeStorage.EXPORT_STATE_KEY, ExportState.EXPORTING.toString());
+        setExportState(ExportState.EXPORTING);
         return true;
     }
 
-    private synchronized void setStateReady() {
-        STORAGE.setValue(ThreadSafeStorage.EXPORT_STATE_KEY, ExportState.READY.toString());
+    private synchronized void setExportState(ExportState state) {
+        STORAGE.setValue(ThreadSafeStorage.EXPORT_STATE_KEY, state.toString());
     }
 
     private String getOutputFileName(long resultHash, long timestamp) {
@@ -68,7 +68,7 @@ public class Export {
             long resultHash = Arrays.hashCode(verifiedImages);
             if (isDuplicateHash(resultHash)) {
                 STORAGE.setValue(ThreadSafeStorage.RESULT_TIMESTAMP_KEY, String.valueOf(timestamp));
-                setStateReady();
+                setExportState(ExportState.READY);
                 STORAGE.dump();
                 return "Got it!";
             }
@@ -78,10 +78,12 @@ public class Export {
             STORAGE.setValue(ThreadSafeStorage.RESULT_HASH_KEY, String.valueOf(resultHash));
             STORAGE.setValue(ThreadSafeStorage.RESULT_TIMESTAMP_KEY, String.valueOf(timestamp));
             STORAGE.setValue(ThreadSafeStorage.RESULT_PATH_KEY, outputFileName);
-            setStateReady();
+            setExportState(ExportState.READY);
             STORAGE.dump();
             return "Got it!";
         } catch (SQLException | IOException e) {
+            setExportState(ExportState.READY);
+            STORAGE.dump();
             e.printStackTrace();
             return "Error";
         }

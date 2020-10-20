@@ -12,7 +12,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
-import ocrlabeler.controllers.PathUtils;
+import ocrlabeler.controllers.Utils;
 import ocrlabeler.controllers.ThreadSafeStorage;
 
 @Path("download")
@@ -26,7 +26,7 @@ public class Dowload {
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
                 try {
-                    String path = PathUtils.joinPath(PathUtils.EXPORT_DIRECTORY, filePath);
+                    String path = Utils.joinPath(Utils.EXPORT_DIRECTORY, filePath);
                     byte[] data = Files.readAllBytes(Paths.get(path));
                     output.write(data);
                     output.flush();

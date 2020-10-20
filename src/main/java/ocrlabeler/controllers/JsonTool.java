@@ -1,5 +1,6 @@
 package ocrlabeler.controllers;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
@@ -22,28 +23,19 @@ public class JsonTool {
     private final Gson gson = new Gson();
 
     @SuppressWarnings("unchecked")
-    public Map<String, String> readFromFile(String jsonFile) {
-        try {
-            Reader reader = Files.newBufferedReader(Paths.get(jsonFile));
-            return (Map<String, String>) gson.fromJson(reader, Map.class);
-        } catch (Exception e) {
-            throw new RuntimeException("Exception happened while reading JSON file", e);
-        }
+    public Map<String, String> readFromFile(String jsonFile) throws IOException {
+        Reader reader = Files.newBufferedReader(Paths.get(jsonFile));
+        return (Map<String, String>) gson.fromJson(reader, Map.class);
     }
 
-    public void writeFromMap(Map<String, String> map, String jsonFile) {
+    public void writeFromMap(Map<String, String> map, String jsonFile) throws IOException {
         JsonObject result = new JsonObject();
         for (Map.Entry<String, String> entry : map.entrySet()) {
             result.addProperty(entry.getKey(), String.valueOf(entry.getValue()));
         }
         String resultJson = result.toString();
-        try {
-            Writer writer = Files.newBufferedWriter(Paths.get(jsonFile));
-            writer.write(resultJson);
-            writer.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Exception happened while reading JSON file", e);
-        }
+        Writer writer = Files.newBufferedWriter(Paths.get(jsonFile));
+        writer.write(resultJson);
+        writer.close();
     }
 }

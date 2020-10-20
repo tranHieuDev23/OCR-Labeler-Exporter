@@ -27,11 +27,11 @@ public class Zipper {
 
     public void zip(Image[] images, String outputFile) throws IOException {
         byte[] buffer = new byte[BUFFER_SIZE];
-        FileOutputStream os = new FileOutputStream(PathUtils.joinPath(PathUtils.EXPORT_DIRECTORY, outputFile));
+        FileOutputStream os = new FileOutputStream(Utils.joinPath(Utils.EXPORT_DIRECTORY, outputFile));
         ZipOutputStream zos = new ZipOutputStream(os);
 
         for (Image item : images) {
-            File srcFile = new File(PathUtils.joinPath(PathUtils.UPLOAD_DIRECTORY, item.getImageUrl()));
+            File srcFile = new File(Utils.joinPath(Utils.UPLOAD_DIRECTORY, item.getImageUrl()));
             FileInputStream is = new FileInputStream(srcFile);
             zos.putNextEntry(new ZipEntry(srcFile.getName()));
 
