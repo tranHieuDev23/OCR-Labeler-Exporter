@@ -60,7 +60,7 @@ public class DatabaseInstance {
             return new Image[] {};
         }
         List<Image> results = new ArrayList<>();
-        while (!rs.isAfterLast()) {
+        if (!rs.isAfterLast()) {
             String imageUrl = rs.getString("imageUrl");
             List<TextRegion> textRegions = new ArrayList<>();
             do {
